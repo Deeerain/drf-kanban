@@ -6,17 +6,7 @@ from django.utils.translation import gettext_lazy as _
 User = get_user_model()
 
 
-class DateStempMixin:
-    '''
-    Mixin для добавленя в класс доп полей для отслеживания даты и время
-    '''
-    created = models.DateTimeField(
-        verbose_name=_('Дата создания'), auto_now_add=True)
-    created = models.DateTimeField(
-        verbose_name=_('Дата обновления'), auto_now=True, db_index=True)
-
-
-class Board(models.Model, DateStempMixin):
+class Board(models.Model):
     '''
     Модель доски
     '''
@@ -25,6 +15,10 @@ class Board(models.Model, DateStempMixin):
         db_index=True, unique=True)
     user = models.ForeignKey(
         verbose_name=_('Пользователь'), to=User, on_delete=models.CASCADE)
+    created = models.DateTimeField(
+        verbose_name=_('Дата создания'), auto_now_add=True)
+    updated = models.DateTimeField(
+        verbose_name=_('Дата обновления'), auto_now=True, db_index=True)
 
     class Meta:
         verbose_name = _('Доска')
@@ -51,7 +45,7 @@ class Column(models.Model):
         return self.title
 
 
-class Task(models.Model, DateStempMixin):
+class Task(models.Model):
     '''
     Модель задачи
     '''
@@ -63,6 +57,12 @@ class Task(models.Model, DateStempMixin):
         verbose_name=_('Позиция'))
     column = models.ForeignKey(
         verbose_name=_('Колонка'), to=Column, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        verbose_name=_('Пользователь'), to=User, on_delete=models.CASCADE)
+    created = models.DateTimeField(
+        verbose_name=_('Дата создания'), auto_now_add=True)
+    updated = models.DateTimeField(
+        verbose_name=_('Дата обновления'), auto_now=True, db_index=True)
 
     class Meta:
         verbose_name = _('Задача')

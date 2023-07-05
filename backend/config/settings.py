@@ -9,7 +9,7 @@ SECRET_KEY = environ.get("SECRET_KEY", "django")
 
 DEBUG = int(environ.get("DEBUG", 1))
 
-ALLOWED_HOSTS = environ.get("ALLOWED_HOSTS", "localhost").split()
+ALLOWED_HOSTS = environ.get("ALLOWED_HOSTS", "127.0.0.1 localhost").split()
 
 CORS_ALLOWED_ORIGINS = environ.get("ALLOWED_ORIGINS",
                                    "http://localhost").split()

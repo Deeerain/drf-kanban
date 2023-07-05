@@ -17,7 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
 class BoardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Board
-        fields = ('pk', 'name', 'created', 'updatd', 'user')
+        fields = ('pk', 'name', 'created', 'updated', 'user')
 
 
 class ColumnSeriaizer(serializers.ModelSerializer):
