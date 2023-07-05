@@ -11,7 +11,7 @@ User = get_user_model
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('pk', 'username')
+        fields = ('pk', 'username', 'email')
 
 
 class BoardSerializer(serializers.ModelSerializer):
@@ -30,3 +30,16 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ('pk', 'name', 'description', 'updated', 'created', 'user')
+
+
+class RegistrationSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    email = serializers.EmailField()
+    password = serializers.CharField()
+
+    def create(self, validated_data):
+        user = User()
+        user.username = validated_data.get('username')
+        user.email = validated_data.get('email')
+        user.set_password(validated_data.get('password'))
+        return user
