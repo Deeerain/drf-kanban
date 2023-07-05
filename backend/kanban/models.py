@@ -31,7 +31,7 @@ class Board(models.Model):
 class Column(models.Model):
     '''Модель колонки доски'''
     title = models.CharField(
-        verbose_name=_('Название'), max_length=30, db_index=True, unique=True)
+        verbose_name=_('Название'), max_length=30, db_index=True)
     board = models.ForeignKey(
         verbose_name=_('Доска'), to=Board, on_delete=models.CASCADE)
     position = models.PositiveIntegerField(
@@ -50,7 +50,7 @@ class Task(models.Model):
     Модель задачи
     '''
     name = models.CharField(
-        verbose_name=_('Название'), max_length=30, unique=True, db_index=True)
+        verbose_name=_('Название'), max_length=30, db_index=True)
     description = models.TextField(
         verbose_name=_('Описание'))
     position = models.PositiveIntegerField(
