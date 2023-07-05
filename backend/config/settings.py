@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "rest_framework_simplejwt",
+    "django_filters",
 
     # Локальные приложения
     "kanban",
@@ -117,7 +118,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
 }
 
 # SIMPLE JWT

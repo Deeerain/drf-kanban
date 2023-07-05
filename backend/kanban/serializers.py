@@ -23,7 +23,7 @@ class BoardSerializer(serializers.ModelSerializer):
 class ColumnSeriaizer(serializers.ModelSerializer):
     class Meta:
         model = Column
-        fields = ('pk', 'name', 'board', 'created', 'updated')
+        fields = ('pk', 'title', 'board')
 
 
 class TaskSerializer(serializers.ModelSerializer):
