@@ -40,6 +40,7 @@ class Column(models.Model):
     class Meta:
         verbose_name = _('Колонка')
         verbose_name_plural = _('Колонки')
+        ordering = ['position']
 
     def __str__(self) -> str:
         return self.title
