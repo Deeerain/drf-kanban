@@ -9,7 +9,7 @@ SECRET_KEY = environ.get("SECRET_KEY", "django")
 
 DEBUG = int(environ.get("DEBUG", 1))
 
-ALLOWED_HOSTS = environ.get("ALLOWED_HOSTS", "localhost").split()
+ALLOWED_HOSTS = environ.get("ALLOWED_HOSTS", "127.0.0.1 localhost").split()
 
 CORS_ALLOWED_ORIGINS = environ.get("ALLOWED_ORIGINS",
                                    "http://localhost").split()
@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "rest_framework_simplejwt",
+    "django_filters",
 
     # Локальные приложения
     "kanban",
@@ -117,7 +118,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
 }
 
 # SIMPLE JWT
