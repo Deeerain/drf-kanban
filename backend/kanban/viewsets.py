@@ -1,14 +1,16 @@
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model
+from django.db import transaction
+from django.db.models import QuerySet
 
 from rest_framework import viewsets
 from rest_framework import permissions
-from rest_framework.status import HTTP_201_CREATED
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from kanban.serializers import (
-    BoardSerializer, ColumnSeriaizer, TaskSerializer, UserSerializer,
-    RegistrationSerializer)
+    BoardSerializer, ColumnSeriaizer, CreateColumnSeriaizer, TaskSerializer,
+    CreateTaskSerializer, UserSerializer)
+
 from kanban.models import Board, Column, Task
 
 
@@ -22,11 +24,11 @@ class BoardViewset(viewsets.ModelViewSet):
         permissions.IsAuthenticated,
     ]
 
-    def get_queryset(self):
-        return Board.objects.filter(user=self.request.user)
-
     def perform_create(self, serializer):
         return serializer.save(user=self.request.user)
+
+    def get_queryset(self):
+        return Board.objects.filter(user=self.request.user)
 
 
 class ColumnViewset(viewsets.ModelViewSet):
@@ -37,9 +39,16 @@ class ColumnViewset(viewsets.ModelViewSet):
         permissions.IsAuthenticated,
     ]
 
-    def perform_create(self, serializer):
-        last_column = self.get_queryset().last()
-        serializer.save(position=last_column.position + 1)
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CreateColumnSeriaizer
+
+        return super().get_serializer_class()
+
+    def perform_destroy(self, instance):
+        queryset = self.get_queryset().filter(board=instance.board)
+        arrange_positionable_elements(queryset)
+        return super().perform_destroy(instance)
 
     def get_queryset(self):
         return Column.objects.filter(board__user=self.request.user)
@@ -53,33 +62,47 @@ class TaskViewset(viewsets.ModelViewSet):
         permissions.IsAuthenticated,
     ]
 
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CreateTaskSerializer
+
+        return super().get_serializer_class()
+
     def get_queryset(self):
         return Task.objects.filter(column__board__user=self.request.user)
 
     def perform_create(self, serializer):
-        last_task = self.get_queryset().last()
-        return serializer.save(
-            user=self.request.user, position=last_task.position + 1)
+        serializer.save(user=self.request.user)
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+
+        queryset = self.get_queryset().\
+            filter(column=instance.column)
+
+        arrange_positionable_elements(queryset)
 
 
-class UserViewset(viewsets.ViewSet):
+class UserViewset(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
     def get_queryset(self):
         return User.objects.all()
 
-    def get_object(self):
-        return self.request.user
-
-    @action(['GET', 'PUT'], detail=False, url_path='me')
-    def get_me(self, request):
-        user = User.objects.get(pk=request.user.pk)
-        serializer = self.serializer_class(user)
+    @action(['GET'], detail=False)
+    def me(self, request):
+        user = self.get_queryset().get(pk=request.user.pk)
+        serializer = self.get_serializer(user)
+        print(serializer.data)
         return Response(serializer.data)
 
-    @action(['POST'], detail=False, url_path='register')
-    def register(self, request):
-        serializer = RegistrationSerializer(request.POST)
-        user = serializer.save()
-        login(request, user)
-        return Response(serializer.data, status=HTTP_201_CREATED)
+
+# TODO Убрать в отдельный файл
+@transaction.atomic
+def arrange_positionable_elements(queryset: QuerySet):
+    with transaction.atomic():
+        for index, element in enumerate(queryset):
+            if element.position == index:
+                continue
+            element.position = index
+            element.save()
